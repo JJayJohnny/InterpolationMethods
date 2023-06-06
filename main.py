@@ -38,7 +38,7 @@ def lagrangeMethod(x, y, interpolationNodesCount, random=False):
         yInter.append(fx)
         xInter.append(xI)
 
-    return np.array(xInter), np.array(yInter)
+    return np.array(xInter), np.array(yInter), np.array(interpolationNodes), np.array(interpolationNodesValues)
 
 
 def splineMethod(x, y, interpolationNodesCount, random=False):
@@ -113,7 +113,7 @@ def splineMethod(x, y, interpolationNodesCount, random=False):
         yInter.append(fx)
 
 
-    return np.array(xInter), np.array(yInter)
+    return np.array(xInter), np.array(yInter), np.array(interpolationNodes), np.array(interpolationNodesValues)
 
 
 def div(x, y, interpolationFunction, kMin, kMax):
@@ -139,7 +139,8 @@ if __name__ == '__main__':
     x = data['x'].to_numpy()
     y = data['y'].to_numpy()
 
-    xS, yS = lagrangeMethod(x, y, 15)
+    xS, yS, interpolationNodes, interpolationNodesValues = lagrangeMethod(x, y, 15)
     plt.plot(x, y)
     plt.plot(xS[50:-50], yS[50:-50])
+    plt.scatter(interpolationNodes, interpolationNodesValues)
     plt.show()
