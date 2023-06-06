@@ -191,7 +191,7 @@ def makePlots(x, y, dataName, k=15):
     plt.savefig(f"{plotPath}{dataName}_Spline.png")
 
     # blad sredniokwadratowy dla spline
-    k, MSE = meanSquareError(x, y, splineMethod, 2, 50)
+    k, MSE = meanSquareError(x, y, splineMethod, 2, 75)
 
     plt.figure()
     plt.semilogy(k, MSE)
@@ -201,7 +201,7 @@ def makePlots(x, y, dataName, k=15):
     plt.savefig(f"{plotPath}{dataName}_Spline_MSE.png")
 
     # blad sredniokwadratowy dla lagrange
-    k, MSE = meanSquareError(x, y, lagrangeMethod, 2, 50)
+    k, MSE = meanSquareError(x, y, lagrangeMethod, 2, 75)
 
     plt.figure()
     plt.semilogy(k, MSE)
@@ -211,11 +211,19 @@ def makePlots(x, y, dataName, k=15):
     plt.savefig(f"{plotPath}{dataName}_Lagrange_MSE.png")
 
 
-
 if __name__ == '__main__':
-    data = pd.read_csv(dataPath+"SpacerniakGdansk.csv", header=0, names=['x', 'y'])
 
+    data = pd.read_csv(dataPath+"SpacerniakGdansk.csv", header=0, names=['x', 'y'])
     x = data['x'].to_numpy()
     y = data['y'].to_numpy()
-
     makePlots(x, y, "SpacerniakGdansk", 20)
+
+    data = pd.read_csv(dataPath + "stale.txt", header=0, names=['x', 'y'])
+    x = data['x'].to_numpy()
+    y = data['y'].to_numpy()
+    makePlots(x, y, "Stale", 20)
+
+    data = pd.read_csv(dataPath + "rozne_wniesienia.txt", header=0, names=['x', 'y'])
+    x = data['x'].to_numpy()
+    y = data['y'].to_numpy()
+    makePlots(x, y, "rozne_wzniesienia", 20)
