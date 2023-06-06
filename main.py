@@ -18,15 +18,11 @@ def fi(i, x, interpolationNodes):
     return nominator/denominator
 
 
-def lagrangeMethod(x, y, interpolationNodesCount):
-    interpolationNodes = []
-    interpolationNodesValues = []
-    # step = int(len(x)/interpolationNodesCount)
-    # # wyznaczenie rownooddalonych wezlow interpolacji
-    # for i in range(0, len(x), step):
-    #     interpolationNodes.append(x[i])
-    #     interpolationNodesValues.append(y[i])
+def lagrangeMethod(x, y, interpolationNodesCount, random=False):
     idx = np.round(np.linspace(0, len(x) - 1, interpolationNodesCount)).astype(int)
+    if random:
+        idx = np.random.choice(x.shape[0], interpolationNodesCount, replace=False)
+        idx = np.sort(idx)
     interpolationNodes = x[idx]
     interpolationNodesValues = y[idx]
 
@@ -45,15 +41,11 @@ def lagrangeMethod(x, y, interpolationNodesCount):
     return np.array(xInter), np.array(yInter)
 
 
-def splineMethod(x, y, interpolationNodesCount):
-    interpolationNodes = []
-    interpolationNodesValues = []
-    # step = int(x.shape[0] / interpolationNodesCount)
-    # # wyznaczenie rownooddalonych wezlow interpolacji
-    # for i in range(0, len(x), step):
-    #     interpolationNodes.append(x[i])
-    #     interpolationNodesValues.append(y[i])
+def splineMethod(x, y, interpolationNodesCount, random=False):
     idx = np.round(np.linspace(0, len(x) - 1, interpolationNodesCount)).astype(int)
+    if random:
+        idx = np.random.choice(x.shape[0], interpolationNodesCount, replace=False)
+        idx = np.sort(idx)
     interpolationNodes = x[idx]
     interpolationNodesValues = y[idx]
 
@@ -106,7 +98,7 @@ def splineMethod(x, y, interpolationNodesCount):
     Y[row] = 0
 
     parameters = np.linalg.solve(A, Y)
-    print(np.allclose(np.dot(A, parameters), Y))
+
     split = -1
     yInter = []
     xInter = []
@@ -124,6 +116,21 @@ def splineMethod(x, y, interpolationNodesCount):
     return np.array(xInter), np.array(yInter)
 
 
+def div(x, y, interpolationFunction, kMin, kMax):
+    k = []
+    divK = []
+
+    xI, yI = interpolationFunction(x, y, kMin-1)
+    prev = yI
+
+    for i in range(kMin, kMax):
+        xI, yI = interpolationFunction(x, y, i)
+        d = np.max(np.max(np.abs(yI - prev)))
+        k.append(i)
+        divK.append(d)
+        prev = yI
+
+    return np.array(k), np.array(divK)
 
 
 if __name__ == '__main__':
@@ -131,11 +138,8 @@ if __name__ == '__main__':
 
     x = data['x'].to_numpy()
     y = data['y'].to_numpy()
-    # x = np.array([1, 3, 5])
-    # y = np.array([6, -2, 4])
 
-    xInter, yInter = lagrangeMethod(x, y, 40)
-
+    xS, yS = lagrangeMethod(x, y, 15)
     plt.plot(x, y)
-    plt.plot(xInter[100:-100], yInter[100:-100])
+    plt.plot(xS[50:-50], yS[50:-50])
     plt.show()
