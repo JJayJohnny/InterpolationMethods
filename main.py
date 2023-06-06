@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-dataPath = 'data/SpacerniakGdansk.csv'
+dataPath = 'data/'
+plotPath = 'plots/'
 
 #TODO:
 # no mówił o sprawku, że minimum 3 trasy i do każdej z tych tras minimum 4 wykresy po dwa na metodę
@@ -132,15 +133,56 @@ def div(x, y, interpolationFunction, kMin, kMax):
 
     return np.array(k), np.array(divK)
 
+def makePlots(x, y, dataName, k=15):
+    # wykres samej trasy
+    plt.figure()
+    plt.plot(x, y, label="Dane rzeczywiste")
+    plt.title(f"Trasa: {dataName}", loc='center', wrap=True)
+    plt.xlabel("Dystans [m]")
+    plt.ylabel("Wysokość [m]")
+    plt.savefig(f"{plotPath}{dataName}.png")
+
+    xL, yL, interpolationNodes, interpolationNodesValues = lagrangeMethod(x, y, k)
+    # metoda Lagrange'a
+    plt.figure()
+    plt.plot(x, y, label="Dane rzeczywiste")
+    plt.plot(xL, yL, label="Metoda Lagrange'a")
+    plt.scatter(interpolationNodes, interpolationNodesValues, label="Węzły interpolacji", color="red")
+    plt.title(f"{dataName}: interpolacja Lagrange'a dla K={k}", loc='center', wrap=True)
+    plt.xlabel("Dystans [m]")
+    plt.ylabel("Wysokość [m]")
+    plt.legend()
+    plt.savefig(f"{plotPath}{dataName}_Lagrange.png")
+
+    # metoda Lagrange'a przyblizona
+    plt.figure()
+    plt.plot(x, y, label="Dane rzeczywiste")
+    plt.plot(xL[50:-50], yL[50:-50], label="Metoda Lagrange'a")
+    plt.scatter(interpolationNodes, interpolationNodesValues, label="Węzły interpolacji", color="red")
+    plt.title(f"{dataName}: metoda Lagrange'a dla K={k} z pominięciem 50 wartości na początku i końcu", loc='center', wrap=True)
+    plt.xlabel("Dystans [m]")
+    plt.ylabel("Wysokość [m]")
+    plt.legend()
+    plt.savefig(f"{plotPath}{dataName}_Lagrange_Zoom.png")
+
+    xS, yS, interpolationNodes, interpolationNodesValues = splineMethod(x, y, k)
+    # funkcje sklejane
+    plt.figure()
+    plt.plot(x, y, label="Dane rzeczywiste")
+    plt.plot(xS, yS, label="Metoda fukncji sklejanych")
+    plt.scatter(interpolationNodes, interpolationNodesValues, label="Węzły interpolacji", color="red")
+    plt.title(f"{dataName}: metoda funkcji sklejanych trzeciego stopnia dla K={k}", loc='center', wrap=True)
+    plt.xlabel("Dystans [m]")
+    plt.ylabel("Wysokość [m]")
+    plt.legend()
+    plt.savefig(f"{plotPath}{dataName}_Spline.png")
+
+
 
 if __name__ == '__main__':
-    data = pd.read_csv(dataPath, header=0, names=['x', 'y'])
+    data = pd.read_csv(dataPath+"SpacerniakGdansk.csv", header=0, names=['x', 'y'])
 
     x = data['x'].to_numpy()
     y = data['y'].to_numpy()
 
-    xS, yS, interpolationNodes, interpolationNodesValues = lagrangeMethod(x, y, 15)
-    plt.plot(x, y)
-    plt.plot(xS[50:-50], yS[50:-50])
-    plt.scatter(interpolationNodes, interpolationNodesValues)
-    plt.show()
+    makePlots(x, y, "SpacerniakGdansk", 20)
