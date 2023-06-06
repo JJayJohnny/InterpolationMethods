@@ -5,7 +5,7 @@ import pandas as pd
 dataPath = 'data/'
 plotPath = 'plots/'
 
-#TODO:
+# TODO:
 # no mówił o sprawku, że minimum 3 trasy i do każdej z tych tras minimum 4 wykresy po dwa na metodę
 
 
@@ -113,7 +113,6 @@ def splineMethod(x, y, interpolationNodesCount, random=False):
         xInter.append(xI)
         yInter.append(fx)
 
-
     return np.array(xInter), np.array(yInter), np.array(interpolationNodes), np.array(interpolationNodesValues)
 
 
@@ -125,13 +124,27 @@ def div(x, y, interpolationFunction, kMin, kMax):
     prev = yI
 
     for i in range(kMin, kMax):
-        xI, yI = interpolationFunction(x, y, i)
+        xI, yI, interpolationNodes, interpolationNodesValues = interpolationFunction(x, y, i)
         d = np.max(np.max(np.abs(yI - prev)))
         k.append(i)
         divK.append(d)
         prev = yI
 
     return np.array(k), np.array(divK)
+
+
+def meanSquareError(x, y, interpolationFunction, kMin, kMax):
+    k = []
+    MSE = []
+
+    for i in range(kMin, kMax):
+        xI, yI, interpolationNodes, interpolationNodesValues = interpolationFunction(x, y, i)
+        err = np.sqrt(np.sum(np.power(y - yI, 2)))/y.shape[0]
+        k.append(i)
+        MSE.append(err)
+
+    return np.array(k), np.array(MSE)
+
 
 def makePlots(x, y, dataName, k=15):
     # wykres samej trasy
@@ -176,6 +189,26 @@ def makePlots(x, y, dataName, k=15):
     plt.ylabel("Wysokość [m]")
     plt.legend()
     plt.savefig(f"{plotPath}{dataName}_Spline.png")
+
+    # blad sredniokwadratowy dla spline
+    k, MSE = meanSquareError(x, y, splineMethod, 2, 50)
+
+    plt.figure()
+    plt.semilogy(k, MSE)
+    plt.title(f"{dataName}: błąd średniokwadratowy dla metody funkcji sklejanych", loc='center', wrap=True)
+    plt.xlabel("Liczba węzłów interpolacji")
+    plt.ylabel("MSE")
+    plt.savefig(f"{plotPath}{dataName}_Spline_MSE.png")
+
+    # blad sredniokwadratowy dla lagrange
+    k, MSE = meanSquareError(x, y, lagrangeMethod, 2, 50)
+
+    plt.figure()
+    plt.semilogy(k, MSE)
+    plt.title(f"{dataName}: błąd średniokwadratowy dla metody Lagrange'a", loc='center', wrap=True)
+    plt.xlabel("Liczba węzłów interpolacji")
+    plt.ylabel("MSE")
+    plt.savefig(f"{plotPath}{dataName}_Lagrange_MSE.png")
 
 
 
