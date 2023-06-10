@@ -146,7 +146,9 @@ def meanSquareError(x, y, interpolationFunction, kMin, kMax):
     return np.array(k), np.array(MSE)
 
 
-def makePlots(x, y, dataName, k=15):
+def makePlots(x, y, dataName, K):
+    if K is None:
+        K = [15]
     # wykres samej trasy
     plt.figure()
     plt.plot(x, y, label="Dane rzeczywiste")
@@ -154,41 +156,51 @@ def makePlots(x, y, dataName, k=15):
     plt.xlabel("Dystans [m]")
     plt.ylabel("Wysokość [m]")
     plt.savefig(f"{plotPath}{dataName}.png")
+    print("plot data DONE")
+    plt.close()
 
-    xL, yL, interpolationNodes, interpolationNodesValues = lagrangeMethod(x, y, k)
-    # metoda Lagrange'a
-    plt.figure()
-    plt.plot(x, y, label="Dane rzeczywiste")
-    plt.plot(xL, yL, label="Metoda Lagrange'a")
-    plt.scatter(interpolationNodes, interpolationNodesValues, label="Węzły interpolacji", color="red")
-    plt.title(f"{dataName}: interpolacja Lagrange'a dla K={k}", loc='center', wrap=True)
-    plt.xlabel("Dystans [m]")
-    plt.ylabel("Wysokość [m]")
-    plt.legend()
-    plt.savefig(f"{plotPath}{dataName}_Lagrange.png")
+    print(K)
+    for k in K:
+        print(f"k={k}")
+        xL, yL, interpolationNodes, interpolationNodesValues = lagrangeMethod(x, y, k)
+        # metoda Lagrange'a
+        plt.figure()
+        plt.plot(x, y, label="Dane rzeczywiste")
+        plt.plot(xL, yL, label="Metoda Lagrange'a")
+        plt.scatter(interpolationNodes, interpolationNodesValues, label="Węzły interpolacji", color="red")
+        plt.title(f"{dataName}: interpolacja Lagrange'a dla K={k}", loc='center', wrap=True)
+        plt.xlabel("Dystans [m]")
+        plt.ylabel("Wysokość [m]")
+        plt.legend()
+        plt.savefig(f"{plotPath}{dataName}_Lagrange_k{k}.png")
+        plt.close()
 
-    # metoda Lagrange'a przyblizona
-    plt.figure()
-    plt.plot(x, y, label="Dane rzeczywiste")
-    plt.plot(xL[50:-50], yL[50:-50], label="Metoda Lagrange'a")
-    plt.scatter(interpolationNodes, interpolationNodesValues, label="Węzły interpolacji", color="red")
-    plt.title(f"{dataName}: metoda Lagrange'a dla K={k} z pominięciem 50 wartości na początku i końcu", loc='center', wrap=True)
-    plt.xlabel("Dystans [m]")
-    plt.ylabel("Wysokość [m]")
-    plt.legend()
-    plt.savefig(f"{plotPath}{dataName}_Lagrange_Zoom.png")
+        # metoda Lagrange'a przyblizona
+        plt.figure()
+        plt.plot(x, y, label="Dane rzeczywiste")
+        plt.plot(xL[50:-50], yL[50:-50], label="Metoda Lagrange'a")
+        plt.scatter(interpolationNodes, interpolationNodesValues, label="Węzły interpolacji", color="red")
+        plt.title(f"{dataName}: metoda Lagrange'a dla K={k} z pominięciem 50 wartości na początku i końcu", loc='center', wrap=True)
+        plt.xlabel("Dystans [m]")
+        plt.ylabel("Wysokość [m]")
+        plt.legend()
+        plt.savefig(f"{plotPath}{dataName}_Lagrange_Zoom_k{k}.png")
+        plt.close()
+        print("lagrange DONE")
 
-    xS, yS, interpolationNodes, interpolationNodesValues = splineMethod(x, y, k)
-    # funkcje sklejane
-    plt.figure()
-    plt.plot(x, y, label="Dane rzeczywiste")
-    plt.plot(xS, yS, label="Metoda fukncji sklejanych")
-    plt.scatter(interpolationNodes, interpolationNodesValues, label="Węzły interpolacji", color="red")
-    plt.title(f"{dataName}: metoda funkcji sklejanych trzeciego stopnia dla K={k}", loc='center', wrap=True)
-    plt.xlabel("Dystans [m]")
-    plt.ylabel("Wysokość [m]")
-    plt.legend()
-    plt.savefig(f"{plotPath}{dataName}_Spline.png")
+        xS, yS, interpolationNodes, interpolationNodesValues = splineMethod(x, y, k)
+        # funkcje sklejane
+        plt.figure()
+        plt.plot(x, y, label="Dane rzeczywiste")
+        plt.plot(xS, yS, label="Metoda fukncji sklejanych")
+        plt.scatter(interpolationNodes, interpolationNodesValues, label="Węzły interpolacji", color="red")
+        plt.title(f"{dataName}: metoda funkcji sklejanych trzeciego stopnia dla K={k}", loc='center', wrap=True)
+        plt.xlabel("Dystans [m]")
+        plt.ylabel("Wysokość [m]")
+        plt.legend()
+        plt.savefig(f"{plotPath}{dataName}_Spline_k{k}.png")
+        plt.close()
+        print("spline DONE")
 
     # blad sredniokwadratowy dla spline
     k, MSE = meanSquareError(x, y, splineMethod, 2, 75)
@@ -199,6 +211,8 @@ def makePlots(x, y, dataName, k=15):
     plt.xlabel("Liczba węzłów interpolacji")
     plt.ylabel("MSE")
     plt.savefig(f"{plotPath}{dataName}_Spline_MSE.png")
+    plt.close()
+    print("spline MSE DONE")
 
     # blad sredniokwadratowy dla lagrange
     k, MSE = meanSquareError(x, y, lagrangeMethod, 2, 75)
@@ -209,6 +223,8 @@ def makePlots(x, y, dataName, k=15):
     plt.xlabel("Liczba węzłów interpolacji")
     plt.ylabel("MSE")
     plt.savefig(f"{plotPath}{dataName}_Lagrange_MSE.png")
+    plt.close()
+    print("lagrange MSE DONE")
 
 
 if __name__ == '__main__':
@@ -216,14 +232,14 @@ if __name__ == '__main__':
     data = pd.read_csv(dataPath+"SpacerniakGdansk.csv", header=0, names=['x', 'y'])
     x = data['x'].to_numpy()
     y = data['y'].to_numpy()
-    makePlots(x, y, "SpacerniakGdansk", 20)
+    makePlots(x, y, "SpacerniakGdansk", [20, 40])
 
     data = pd.read_csv(dataPath + "stale.txt", header=0, names=['x', 'y'])
     x = data['x'].to_numpy()
     y = data['y'].to_numpy()
-    makePlots(x, y, "Stale", 20)
+    makePlots(x, y, "Stale", [20, 40])
 
     data = pd.read_csv(dataPath + "rozne_wniesienia.txt", header=0, names=['x', 'y'])
     x = data['x'].to_numpy()
     y = data['y'].to_numpy()
-    makePlots(x, y, "rozne_wzniesienia", 20)
+    makePlots(x, y, "rozne_wzniesienia", [20, 40])
