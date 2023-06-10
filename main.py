@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import time
 
 dataPath = 'data/'
 plotPath = 'plots/'
@@ -227,6 +228,34 @@ def makePlots(x, y, dataName, K):
     print("lagrange MSE DONE")
 
 
+def measureTime(x, y, kMin, kMax):
+    k = []
+    lagrangeTimes = []
+    splineTimes = []
+
+    for i in range(kMin, kMax):
+        k.append(i)
+        start = time.time()
+        _, _, _, _ = lagrangeMethod(x, y, i)
+        stop = time.time()
+        lagrangeTimes.append(stop - start)
+        start = time.time()
+        _, _, _, _ = splineMethod(x, y, i)
+        stop = time.time()
+        splineTimes.append(stop-start)
+
+    # plot time graph for both methods
+    plt.figure()
+    plt.semilogy(k, lagrangeTimes, label="Metoda Lagrange'a")
+    plt.semilogy(k, splineTimes, label="Metoda funkcji sklejanych")
+    plt.title(f"Czas trwania obliczeń dla obu metod interpolacji")
+    plt.xlabel("Liczba węzłów interpolacji")
+    plt.ylabel("Czas trwania [s]")
+    plt.legend()
+    plt.savefig(f"{plotPath}czasy.png")
+    plt.close()
+
+
 if __name__ == '__main__':
 
     data = pd.read_csv(dataPath+"SpacerniakGdansk.csv", header=0, names=['x', 'y'])
@@ -243,3 +272,5 @@ if __name__ == '__main__':
     x = data['x'].to_numpy()
     y = data['y'].to_numpy()
     makePlots(x, y, "rozne_wzniesienia", [20, 40])
+
+    measureTime(x, y, 2, 75)
