@@ -179,9 +179,10 @@ def makePlots(x, y, dataName, K):
         # metoda Lagrange'a przyblizona
         plt.figure()
         plt.plot(x, y, label="Dane rzeczywiste")
-        plt.plot(xL[50:-50], yL[50:-50], label="Metoda Lagrange'a")
+        plt.plot(xL, yL, label="Metoda Lagrange'a")
+        plt.ylim(min(y)-10, max(y)+10)
         plt.scatter(interpolationNodes, interpolationNodesValues, label="Węzły interpolacji", color="red")
-        plt.title(f"{dataName}: metoda Lagrange'a dla K={k} z pominięciem 50 wartości na początku i końcu", loc='center', wrap=True)
+        plt.title(f"{dataName}: interpolacja Lagrange'a dla K={k} (przybliżone)", loc='center', wrap=True)
         plt.xlabel("Dystans [m]")
         plt.ylabel("Wysokość [m]")
         plt.legend()
